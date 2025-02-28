@@ -1,0 +1,28 @@
+import { type Request, type Response } from 'express'
+import { asyncHandler } from '@common/errors/ErrorHandler.js'
+import { sendPaginatedSuccess } from '@common/utils/response.js'
+import { usersFindService } from './users-find.service.js'
+import { type UserFilters } from '../../types/index.js'
+import { userFiltersSchema } from '../../validators/user.validator.js'
+
+/**
+ * Controller for finding users with filters
+ */
+export const usersFindController = asyncHandler(
+  async (req: Request, res: Response) => {
+    // Validate and parse query parameters
+    const filters = userFiltersSchema.parse(req.query) as UserFilters
+
+    // Call service
+    const { users, total } = await usersFindService(filters)
+
+    // Return paginated response
+    return sendPaginatedSuccess(
+      res,
+      users,
+      total,
+      filters.page ?? 1,
+      filters.pageSize ?? 10,
+    )
+  },
+)
