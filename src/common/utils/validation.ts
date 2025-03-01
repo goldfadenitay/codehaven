@@ -1,39 +1,31 @@
-/**
- * Safely checks if a value is null or undefined
- */
-export const isNullOrUndefined = <T>(
-  value: T | null | undefined,
-): value is null | undefined => {
-  return value === null || value === undefined
-}
+import { z } from 'zod'
+import { AppError } from '@/common/errors/AppError'
 
-/**
- * Safely gets a value, returning a default if the value is null or undefined
- */
-export const safeGet = <T, D>(
-  value: T | null | undefined,
-  defaultValue: D,
-): T | D => {
-  return isNullOrUndefined(value) ? defaultValue : value
-}
-
-/**
- * Safely applies a transformation function to a value
- * Returns the default value if the input value is null or undefined
- * Returns the default value if the transformation function throws an error
- */
-export const safeTransform = <T, R, D>(
-  value: T | null | undefined,
-  transform: (value: T) => R,
-  defaultValue: D,
-): R | D => {
-  if (isNullOrUndefined(value)) {
-    return defaultValue
-  }
-
+export const validate = <T>(schema: z.ZodType<T>, data: unknown): T => {
   try {
-    return transform(value)
+    return schema.parse(data)
   } catch (error) {
-    return defaultValue
+    if (error instanceof z.ZodError) {
+      throw AppError.badRequest('Validation Error', 'VALIDATION_ERROR', {
+        errors: error.errors,
+      })
+    }
+    throw error
+  }
+}
+
+export const validateAsync = async <T>(
+  schema: z.ZodType<T>,
+  data: unknown,
+): Promise<T> => {
+  try {
+    return await schema.parseAsync(data)
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      throw AppError.badRequest('Validation Error', 'VALIDATION_ERROR', {
+        errors: error.errors,
+      })
+    }
+    throw error
   }
 }

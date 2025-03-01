@@ -1,22 +1,34 @@
-import { type Request, type Response } from 'express'
-import { asyncHandler } from '@/common/errors/ErrorHandler'
-import { sendCreated } from '@/common/utils/response'
-import { type CreateUserInput } from '@/domains/users/types'
-import { userCreateService } from './user-create.service'
+import { HttpRequest, Controller } from '@/common/types/http'
+import { validate } from '@/common/utils/validation'
+import { z } from 'zod'
+import { UserRole } from '@prisma/client'
+import { created } from '@/common/utils/response'
+import { createUser } from '@/domains/users/endpoints/user-create/user-create.service'
 
-/**
- * Controller for user creation endpoint
- */
-export const userCreateController = asyncHandler(
-  async (req: Request, res: Response) => {
-    console.log('req.body', req.body)
-    // The request body is already validated by the validation middleware
-    const validatedData = req.body as CreateUserInput
+const createUserSchema = z.object({
+  email: z.string().email('Invalid email address'),
+  password: z
+    .string()
+    .min(8, 'Password must be at least 8 characters')
+    .regex(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/,
+      'Password must include uppercase, lowercase, number and special character',
+    ),
+  firstName: z.string().min(1, 'First name is required'),
+  lastName: z.string().min(1, 'Last name is required'),
+  role: z.nativeEnum(UserRole, {
+    errorMap: () => ({ message: 'Invalid user role' }),
+  }),
+})
 
-    // Call service
-    const user = await userCreateService(validatedData)
+export type CreateUserRequest = z.infer<typeof createUserSchema>
 
-    // Return response
-    return sendCreated(res, user)
-  },
-)
+export const userCreateController: Controller = async (req: HttpRequest) => {
+  const validatedData = validate(createUserSchema, req.body)
+  const user = await createUser(validatedData)
+
+  return created({
+    message: 'User created successfully',
+    data: { user },
+  })
+}

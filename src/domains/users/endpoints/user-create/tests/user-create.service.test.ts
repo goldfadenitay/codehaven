@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { userCreateService } from '../user-create.service.js'
 import { prismaClient } from '@/common/db/prisma'
-import { ConflictError } from '@/common/errors/ErrorTypes'
+import { ConflictError } from '@/common/errors/errorTypes.js'
 import { UserRole } from '@prisma/client'
 import bcrypt from 'bcrypt'
 

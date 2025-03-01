@@ -1,6 +1,6 @@
 import { type Request, type Response, type NextFunction } from 'express'
 import { type AnyZodObject, ZodError } from 'zod'
-import { ValidationError } from '@/common/errors/ErrorTypes'
+import { ValidationError } from '@/common/errors/errorTypes'
 import { logger } from '@/common/utils/logger'
 import { isDefined } from '@/common/utils/isDefined'
 

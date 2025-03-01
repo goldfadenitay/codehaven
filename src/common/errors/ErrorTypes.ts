@@ -10,7 +10,7 @@ export class NotFoundError extends AppError {
     errorCode: string = 'RESOURCE_NOT_FOUND',
     details?: Record<string, unknown>,
   ) {
-    super(message, StatusCodes.NOT_FOUND, errorCode, true, details)
+    super(message, errorCode, StatusCodes.NOT_FOUND, true, details)
     Object.setPrototypeOf(this, NotFoundError.prototype)
   }
 }
@@ -24,7 +24,7 @@ export class BadRequestError extends AppError {
     errorCode: string = 'BAD_REQUEST',
     details?: Record<string, unknown>,
   ) {
-    super(message, StatusCodes.BAD_REQUEST, errorCode, true, details)
+    super(message, errorCode, StatusCodes.BAD_REQUEST, true, details)
     Object.setPrototypeOf(this, BadRequestError.prototype)
   }
 }
@@ -38,7 +38,7 @@ export class UnauthorizedError extends AppError {
     errorCode: string = 'UNAUTHORIZED',
     details?: Record<string, unknown>,
   ) {
-    super(message, StatusCodes.UNAUTHORIZED, errorCode, true, details)
+    super(message, errorCode, StatusCodes.UNAUTHORIZED, true, details)
     Object.setPrototypeOf(this, UnauthorizedError.prototype)
   }
 }
@@ -52,7 +52,7 @@ export class ForbiddenError extends AppError {
     errorCode: string = 'FORBIDDEN',
     details?: Record<string, unknown>,
   ) {
-    super(message, StatusCodes.FORBIDDEN, errorCode, true, details)
+    super(message, errorCode, StatusCodes.FORBIDDEN, true, details)
     Object.setPrototypeOf(this, ForbiddenError.prototype)
   }
 }
@@ -66,7 +66,7 @@ export class ConflictError extends AppError {
     errorCode: string = 'CONFLICT',
     details?: Record<string, unknown>,
   ) {
-    super(message, StatusCodes.CONFLICT, errorCode, true, details)
+    super(message, errorCode, StatusCodes.CONFLICT, true, details)
     Object.setPrototypeOf(this, ConflictError.prototype)
   }
 }
@@ -80,7 +80,7 @@ export class ValidationError extends AppError {
     errorCode: string = 'VALIDATION_ERROR',
     details?: Record<string, unknown>,
   ) {
-    super(message, StatusCodes.UNPROCESSABLE_ENTITY, errorCode, true, details)
+    super(message, errorCode, StatusCodes.UNPROCESSABLE_ENTITY, true, details)
     Object.setPrototypeOf(this, ValidationError.prototype)
   }
 }
@@ -94,7 +94,7 @@ export class DatabaseError extends AppError {
     errorCode: string = 'DATABASE_ERROR',
     details?: Record<string, unknown>,
   ) {
-    super(message, StatusCodes.INTERNAL_SERVER_ERROR, errorCode, true, details)
+    super(message, errorCode, StatusCodes.INTERNAL_SERVER_ERROR, true, details)
     Object.setPrototypeOf(this, DatabaseError.prototype)
   }
 }

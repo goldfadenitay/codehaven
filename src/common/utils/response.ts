@@ -1,83 +1,45 @@
-import { type Response } from 'express'
-import { StatusCodes } from 'http-status-codes'
-import { momentUTC } from '@/common/utils/momentUTC'
+import { HttpResponse, HttpStatus } from '@/common/utils/http'
 
-interface SuccessResponse<T> {
-  success: true
-  data: T
-  timestamp: string
-  traceId?: string
+type ErrorResponse = {
+  error: string
+  details?: unknown
 }
 
-interface PaginatedSuccessResponse<T> extends SuccessResponse<T[]> {
-  pagination: {
-    total: number
-    page: number
-    pageSize: number
-    totalPages: number
-  }
-}
+const createResponse = <T>(
+  statusCode: (typeof HttpStatus)[keyof typeof HttpStatus],
+  body: T,
+  headers?: Record<string, string>,
+): HttpResponse<T> => ({
+  statusCode,
+  body,
+  headers: headers ?? {},
+})
 
-/**
- * Sends a success response with the provided data
- */
-export const sendSuccess = <T>(
-  res: Response,
-  data: T,
-  statusCode: number = StatusCodes.OK,
-): Response => {
-  const traceId = res.req.traceId
+export const success = <T>(data: T): HttpResponse<T> =>
+  createResponse(HttpStatus.OK, data)
 
-  const response: SuccessResponse<T> = {
-    success: true,
-    data,
-    timestamp: momentUTC.now().toISOString(),
-    ...(traceId && { traceId }),
-  }
+export const created = <T>(data: T): HttpResponse<T> =>
+  createResponse(HttpStatus.CREATED, data)
 
-  return res.status(statusCode).json(response)
-}
+export const badRequest = (
+  message: string,
+  details?: unknown,
+): HttpResponse<ErrorResponse> =>
+  createResponse(HttpStatus.BAD_REQUEST, { error: message, details })
 
-/**
- * Sends a paginated success response
- */
-export const sendPaginatedSuccess = <T>(
-  res: Response,
-  data: T[],
-  total: number,
-  page: number,
-  pageSize: number,
-  statusCode: number = StatusCodes.OK,
-): Response => {
-  const totalPages = Math.ceil(total / pageSize)
-  const traceId = res.req.traceId
+export const unauthorized = (message: string): HttpResponse<ErrorResponse> =>
+  createResponse(HttpStatus.UNAUTHORIZED, { error: message })
 
-  const response: PaginatedSuccessResponse<T> = {
-    success: true,
-    data,
-    pagination: {
-      total,
-      page,
-      pageSize,
-      totalPages,
-    },
-    timestamp: momentUTC.now().toISOString(),
-    ...(traceId && { traceId }),
-  }
+export const forbidden = (message: string): HttpResponse<ErrorResponse> =>
+  createResponse(HttpStatus.FORBIDDEN, { error: message })
 
-  return res.status(statusCode).json(response)
-}
+export const notFound = (message: string): HttpResponse<ErrorResponse> =>
+  createResponse(HttpStatus.NOT_FOUND, { error: message })
 
-/**
- * Sends a no content response (204)
- */
-export const sendNoContent = (res: Response): Response => {
-  return res.status(StatusCodes.NO_CONTENT).send()
-}
+export const conflict = (message: string): HttpResponse<ErrorResponse> =>
+  createResponse(HttpStatus.CONFLICT, { error: message })
 
-/**
- * Sends a created response (201) with the provided data
- */
-export const sendCreated = <T>(res: Response, data: T): Response => {
-  return sendSuccess(res, data, StatusCodes.CREATED)
-}
+export const internalServer = (
+  message: string = 'Internal Server Error',
+): HttpResponse<ErrorResponse> =>
+  createResponse(HttpStatus.INTERNAL_SERVER, { error: message })

@@ -1,44 +1,34 @@
-import { type CreateUserInput, type UserDto } from '@/domains/users/types'
-import { ConflictError } from '@/common/errors/ErrorTypes'
-import { logger } from '@/common/utils/logger'
-import { prismaClient } from '@/common/db/prisma'
-import bcrypt from 'bcrypt'
-import { isDefined } from '@/common/utils/isDefined'
+import { prismaClient as prisma } from '@/common/db/prisma'
+import { CreateUserRequest } from '@/domains/users/endpoints/user-create/user-create.controller'
+import { AppError } from '@/common/errors/AppError'
+import { User } from '@prisma/client'
 
-/**
- * Service function for user creation
- */
-export const userCreateService = async (
-  data: CreateUserInput,
-): Promise<UserDto> => {
-  // Check if email already exists
-  const existingUser = await prismaClient.user.findUnique({
-    where: { email: data.email },
-  })
+export const createUser = async (data: CreateUserRequest): Promise<User> => {
+  try {
+    // Check if user with email already exists
+    const existingUser = await prisma.user.findUnique({
+      where: { email: data.email },
+    })
 
-  if (isDefined(existingUser)) {
-    throw new ConflictError('Email already in use', 'EMAIL_IN_USE')
+    if (existingUser) {
+      throw AppError.conflict(
+        'User with this email already exists',
+        'USER_EMAIL_EXISTS',
+      )
+    }
+
+    // Create the user
+    return await prisma.user.create({
+      data,
+    })
+  } catch (error) {
+    if (error instanceof AppError) {
+      throw error
+    }
+    throw AppError.internal(
+      'Failed to create user',
+      'USER_CREATE_FAILED',
+      error as Record<string, unknown>,
+    )
   }
-
-  // Hash the password
-  const salt = await bcrypt.genSalt(10)
-  const hashedPassword = await bcrypt.hash(data.password, salt)
-
-  // Create the user with hashed password
-  const userToCreate = {
-    ...data,
-    password: hashedPassword,
-  }
-
-  logger.info(`Creating new user with email: ${data.email}`)
-
-  // Create user in database
-  const user = await prismaClient.user.create({
-    data: userToCreate,
-  })
-
-  // Map to DTO (remove sensitive fields)
-  const { password, refreshToken, tokenExpiry, lastLoginAt, ...userDto } = user
-
-  return userDto
 }

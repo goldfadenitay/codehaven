@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { type NextFunction, type Request, type Response } from 'express'
 import { userCreateController } from '../user-create.controller'
 import * as userCreateServiceModule from '../user-create.service'
-import { ConflictError } from '@/common/errors/ErrorTypes'
+import { ConflictError } from '@/common/errors/errorTypes'
 import { StatusCodes } from 'http-status-codes'
 import { UserRole } from '@prisma/client'
 
