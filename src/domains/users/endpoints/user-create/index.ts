@@ -1,1 +1,1 @@
-export { userCreateController } from './user-create.controller.js'
+export { userCreateController } from './user-create.controller'

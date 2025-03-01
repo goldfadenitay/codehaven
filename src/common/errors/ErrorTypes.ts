@@ -1,5 +1,5 @@
 import { StatusCodes } from 'http-status-codes'
-import { AppError } from '@common/errors/AppError.js'
+import { AppError } from '@common/errors/AppError'
 
 /**
  * Not Found Error - For resources that cannot be found

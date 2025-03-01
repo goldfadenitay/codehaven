@@ -1,6 +1,6 @@
 import { type Response } from 'express'
 import { StatusCodes } from 'http-status-codes'
-import { momentUTC } from '@common/utils/momentUTC.js'
+import { momentUTC } from '@common/utils/momentUTC'
 
 interface SuccessResponse<T> {
   success: true

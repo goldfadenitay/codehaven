@@ -1,11 +1,11 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest'
-import { createApp } from '@/app.js'
+import { createApp } from '../../../../../app'
 import request from 'supertest'
 import {
   prismaClient,
   connectPrisma,
   disconnectPrisma,
-} from '@common/db/prisma.js'
+} from '@common/db/prisma'
 import { UserRole } from '@prisma/client'
 
 describe('User Create Integration Test', () => {

@@ -1,4 +1,4 @@
-import { logger } from './logger.js'
+import { logger } from '@common/utils/logger'
 
 /**
  * Wraps an async function with a try/catch and returns a tuple containing

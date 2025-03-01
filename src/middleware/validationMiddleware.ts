@@ -1,8 +1,8 @@
 import { type Request, type Response, type NextFunction } from 'express'
 import { z } from 'zod'
-import { ValidationError } from '@common/errors/ErrorTypes.js'
-import { logger } from '@common/utils/logger.js'
-import { isDefined } from '@/utils/isDefined.js'
+import { ValidationError } from '@common/errors/ErrorTypes'
+import { logger } from '@common/utils/logger'
+import { isDefined } from '@common/utils/isDefined'
 
 /**
  * Validation sources in request

@@ -1,5 +1,5 @@
 import moment from 'moment'
-import { isDefined } from '@/utils/isDefined.js'
+import { isDefined } from '@common/utils/isDefined'
 /**
  * UTC moment module to ensure consistent timezone handling
  * This should be used throughout the application instead of importing moment directly.

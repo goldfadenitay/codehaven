@@ -1,7 +1,7 @@
 import { type Request, type Response } from 'express'
-import { asyncHandler } from '@common/errors/ErrorHandler.js'
-import { sendSuccess } from '@common/utils/response.js'
-import { userFindService } from './user-find.service.js'
+import { asyncHandler } from '@common/errors/ErrorHandler'
+import { sendSuccess } from '@common/utils/response'
+import { userFindService } from './user-find.service'
 
 /**
  * Controller for finding a single user by ID

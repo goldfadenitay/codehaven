@@ -1,5 +1,5 @@
-import { type UserDto, type UserFilters } from '../../types/index.js'
-import { prismaClient } from '@common/db/prisma.js'
+import { type UserDto, type UserFilters } from '@domains/users/types'
+import { prismaClient } from '@common/db/prisma'
 import { type Prisma } from '@prisma/client'
 
 /**

@@ -1,8 +1,8 @@
 import { type Request, type Response } from 'express'
-import { asyncHandler } from '@common/errors/ErrorHandler.js'
-import { sendCreated } from '@common/utils/response.js'
-import { type CreateUserInput } from '../../types/index.js'
-import { userCreateService } from './user-create.service.js'
+import { asyncHandler } from '@common/errors/ErrorHandler'
+import { sendCreated } from '@common/utils/response'
+import { type CreateUserInput } from '@domains/users/types'
+import { userCreateService } from './user-create.service'
 
 /**
  * Controller for user creation endpoint

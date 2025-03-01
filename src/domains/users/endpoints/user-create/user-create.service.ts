@@ -1,9 +1,9 @@
-import { type CreateUserInput, type UserDto } from '../../types/index.js'
-import { ConflictError } from '@common/errors/ErrorTypes.js'
-import { logger } from '@common/utils/logger.js'
-import { prismaClient } from '@common/db/prisma.js'
+import { type CreateUserInput, type UserDto } from '@domains/users/types'
+import { ConflictError } from '@common/errors/ErrorTypes'
+import { logger } from '@common/utils/logger'
+import { prismaClient } from '@common/db/prisma'
 import bcrypt from 'bcrypt'
-import { isDefined } from '@/utils/isDefined.js'
+import { isDefined } from '@common/utils/isDefined'
 
 /**
  * Service function for user creation

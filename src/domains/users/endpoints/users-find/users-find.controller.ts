@@ -1,9 +1,9 @@
 import { type Request, type Response } from 'express'
-import { asyncHandler } from '@common/errors/ErrorHandler.js'
-import { sendPaginatedSuccess } from '@common/utils/response.js'
-import { usersFindService } from './users-find.service.js'
-import { type UserFilters } from '../../types/index.js'
-import { userFiltersSchema } from '../../validators/user.validator.js'
+import { asyncHandler } from '@common/errors/ErrorHandler'
+import { sendPaginatedSuccess } from '@common/utils/response'
+import { usersFindService } from './users-find.service'
+import { type UserFilters } from '@domains/users/types'
+import { userFiltersSchema } from '@domains/users/validators/user.validator'
 
 /**
  * Controller for finding users with filters

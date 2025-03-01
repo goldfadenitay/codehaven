@@ -1,5 +1,5 @@
 import { type Prisma, PrismaClient } from '@prisma/client'
-import { logger } from '@common/utils/logger.js'
+import { logger } from '@common/utils/logger'
 
 // Singleton class for Prisma client
 class PrismaClientSingleton {

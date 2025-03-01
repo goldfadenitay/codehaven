@@ -1,19 +1,14 @@
-import express, {
-  type RequestHandler,
-  type Application,
-  type Request,
-  type Response,
-} from 'express'
+import express, { RequestHandler, Application } from 'express'
 import cors from 'cors'
 import helmet from 'helmet'
 import compression from 'compression'
 import morgan from 'morgan'
 import config from 'config'
-import { errorHandler } from '@common/errors/ErrorHandler.js'
-import { logger } from '@common/utils/logger.js'
-import { traceMiddleware } from '@middleware/traceMiddleware.js'
-import { momentUTC } from '@common/utils/momentUTC.js'
-import v1Routes from './routes/v1/index.js'
+import { errorHandler } from '@common/errors/ErrorHandler'
+import { logger } from '@common/utils/logger'
+import { traceMiddleware } from '@middleware/traceMiddleware'
+import { momentUTC } from '@common/utils/momentUTC'
+import v1Routes from './routes/v1/index'
 
 /**
  * Express application setup
@@ -48,11 +43,10 @@ export const createApp = (): Application => {
   )
 
   // Health check route
-  app.get('/health', (req: Request, res: Response) => {
+  app.get('/health', (_, res) => {
     res.status(200).json({
       status: 'UP',
       timestamp: momentUTC.utc().toISOString(),
-      traceId: req.traceId,
       version: process.env.npm_package_version ?? 'unknown',
       environment: process.env.NODE_ENV ?? 'development',
     })

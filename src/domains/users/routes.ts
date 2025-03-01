@@ -3,17 +3,17 @@ import {
   validateBody,
   validateParams,
   validateQuery,
-} from '@/middleware/validationMiddleware.js'
+} from '@middleware/validationMiddleware'
 import {
   createUserSchema,
   userParamsSchema,
   userFiltersSchema,
-} from './validators/user.validator.js'
+} from '@domains/users/validators/user.validator'
 
 // Import controllers from endpoints
-import { userCreateController } from './endpoints/user-create/index.js'
-import { userFindController } from './endpoints/user-find/index.js'
-import { usersFindController } from './endpoints/users-find/index.js'
+import { userCreateController } from '@domains/users/endpoints/user-create/index'
+import { userFindController } from '@domains/users/endpoints/user-find/index'
+import { usersFindController } from '@domains/users/endpoints/users-find/index'
 // Import other controllers as they are created
 
 // Initialize the router

@@ -1,17 +1,8 @@
-import { type Request, type Response, type NextFunction } from 'express'
+import { Request, Response, NextFunction } from 'express'
 import { v4 as uuidv4 } from 'uuid'
 import { logger } from '@common/utils/logger.js'
 import { getUserAgent } from '@common/utils/request.js'
 import { momentUTC } from '@common/utils/momentUTC.js'
-import type moment from 'moment'
-
-declare module 'express' {
-  interface Request {
-    traceId: string
-    startTime: moment.Moment
-    requestMetadata: RequestMetadata
-  }
-}
 
 // Interface for request metadata
 interface RequestMetadata {
@@ -85,7 +76,7 @@ export const traceMiddleware = (
   req.traceId = traceId
 
   // Add start time for performance measurement
-  req.startTime = momentUTC.utc()
+  req.startTime = momentUTC.now().toDate()
 
   // Collect request metadata
   req.requestMetadata = collectRequestMetadata(req)
@@ -119,7 +110,7 @@ export const traceMiddleware = (
       traceId,
       statusCode: res.statusCode,
       duration,
-      startTime: req.startTime.toISOString(),
+      startTime: req.startTime?.toISOString() ?? 'unknown',
       endTime: endTime.toISOString(),
       bytesSent: res.getHeader('content-length') ?? 0,
       contentType: res.getHeader('content-type') ?? 'unknown',

@@ -1,4 +1,4 @@
-import { isDefined } from '@/utils/isDefined.js'
+import { isDefined } from '@common/utils/isDefined'
 import { type Request } from 'express'
 
 /**

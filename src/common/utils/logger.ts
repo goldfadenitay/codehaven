@@ -1,8 +1,8 @@
 import pino from 'pino'
 import config from 'config'
-import { momentUTC } from '@common/utils/momentUTC.js'
+import { momentUTC } from '@common/utils/momentUTC'
 import { AsyncLocalStorage } from 'async_hooks'
-import { isDefined } from '@/utils/isDefined.js'
+import { isDefined } from '@common/utils/isDefined'
 
 // Trace context type
 interface TraceContext {
@@ -40,9 +40,12 @@ const pinoLogger = pino({
   },
 })
 
+// Define the valid logging methods
+type LoggerMethod = 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal'
+
 // Wrapper function to add trace ID to log entries
 const logWithTraceId = (
-  method: keyof typeof pinoLogger,
+  method: LoggerMethod,
   message: string | Record<string, any>,
   ...args: any[]
 ): void => {
@@ -69,22 +72,40 @@ const logWithTraceId = (
 
 // Create a wrapper logger
 export const logger = {
-  trace: (message: string | Record<string, any>, ...args: unknown[]) => {
+  trace: (
+    message: string | Record<string, any>,
+    ...args: unknown[]
+  ): ReturnType<typeof logWithTraceId> => {
     logWithTraceId('trace', message, ...args)
   },
-  debug: (message: string | Record<string, any>, ...args: unknown[]) => {
+  debug: (
+    message: string | Record<string, any>,
+    ...args: unknown[]
+  ): ReturnType<typeof logWithTraceId> => {
     logWithTraceId('debug', message, ...args)
   },
-  info: (message: string | Record<string, any>, ...args: unknown[]) => {
+  info: (
+    message: string | Record<string, any>,
+    ...args: unknown[]
+  ): ReturnType<typeof logWithTraceId> => {
     logWithTraceId('info', message, ...args)
   },
-  warn: (message: string | Record<string, any>, ...args: unknown[]) => {
+  warn: (
+    message: string | Record<string, any>,
+    ...args: unknown[]
+  ): ReturnType<typeof logWithTraceId> => {
     logWithTraceId('warn', message, ...args)
   },
-  error: (message: string | Record<string, any>, ...args: unknown[]) => {
+  error: (
+    message: string | Record<string, any>,
+    ...args: unknown[]
+  ): ReturnType<typeof logWithTraceId> => {
     logWithTraceId('error', message, ...args)
   },
-  fatal: (message: string | Record<string, any>, ...args: unknown[]) => {
+  fatal: (
+    message: string | Record<string, any>,
+    ...args: unknown[]
+  ): ReturnType<typeof logWithTraceId> => {
     logWithTraceId('fatal', message, ...args)
   },
 

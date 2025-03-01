@@ -1,1 +1,1 @@
-export { userFindController } from './user-find.controller.js'
+export { userFindController } from './user-find.controller'

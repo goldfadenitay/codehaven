@@ -1,14 +1,14 @@
 import { type Request, type Response, type NextFunction } from 'express'
-import { AppError } from '@common/errors/AppError.js'
+import { AppError } from '@common/errors/AppError'
 import { StatusCodes } from 'http-status-codes'
 import {
   PrismaClientKnownRequestError,
   PrismaClientValidationError,
 } from '@prisma/client/runtime/library'
-import { logger } from '@common/utils/logger.js'
+import { logger } from '@common/utils/logger'
 import { ZodError } from 'zod'
-import { match, P } from 'ts-pattern'
-import { momentUTC } from '@common/utils/momentUTC.js'
+import { match } from 'ts-pattern'
+import { momentUTC } from '@common/utils/momentUTC'
 
 interface ErrorResponse {
   success: false
@@ -130,7 +130,7 @@ export const errorHandler = (
   req: Request,
   res: Response,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  next: NextFunction,
+  _: NextFunction,
 ): void => {
   const appError = convertToAppError(err)
 
@@ -170,7 +170,7 @@ export const errorHandler = (
     },
     timestamp: momentUTC.now().toISOString(),
     path: req.originalUrl,
-    traceId: req.traceId,
+    // traceId: req.traceId ?? '',
   }
 
   // Send response

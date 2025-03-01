@@ -1,12 +1,12 @@
-import { createApp } from './app.js'
-import { logger } from '@common/utils/logger.js'
+import { createApp } from './app'
+import { logger } from '@common/utils/logger'
 import config from 'config'
 import {
   connectPrisma,
   disconnectPrisma,
   isPrismaConnected,
-} from '@common/db/prisma.js'
-import { momentUTC } from '@common/utils/momentUTC.js'
+} from '@common/db/prisma'
+import { momentUTC } from '@common/utils/momentUTC'
 
 // Start the server
 const startServer = async (): Promise<void> => {
@@ -38,7 +38,7 @@ const startServer = async (): Promise<void> => {
     })
 
     // Handle uncaught exceptions
-    process.on('uncaughtException', async (error: Error) => {
+    process.on('uncaughtException', async (error) => {
       logger.error('Uncaught Exception:', error)
 
       // Check if we have an open Prisma connection and close it
