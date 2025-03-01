@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { adaptExpressRoute } from '@/common/middleware/route-adapter'
+import { adaptExpressRoute } from '@/middleware/route-adapter'
 import { userCreateController } from '@/domains/users/endpoints/user-create'
 import { userFindController } from '@/domains/users/endpoints/user-find'
 import { userUpdateController } from '@/domains/users/endpoints/user-update'

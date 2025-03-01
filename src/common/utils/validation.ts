@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { AppError } from '@/common/errors/AppError'
+import { AppError } from '@/common/errors/appError'
 
 export const validate = <T>(schema: z.ZodType<T>, data: unknown): T => {
   try {

@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client'
-import { logger } from '@/common/utils/logger'
-import { isDefined } from '@/common/utils/isDefined'
+import { logger } from '../../src/common/utils/logger'
+import { isDefined } from '../../src/common/utils/isDefined'
 
 /**
  * Test database utility for managing the test database

@@ -3,12 +3,7 @@ import userRouter from '@/domains/users/routes'
 
 const v1Router = Router()
 
-// Mount domain-specific routes
 v1Router.use('/users', userRouter)
-
-// Add more domain routes here as needed
-// v1Router.use('/products', productRouter)
-// v1Router.use('/orders', orderRouter)
 
 // Root route for API documentation
 v1Router.get('/', (_, res) => {

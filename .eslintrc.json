@@ -18,11 +18,13 @@
   "rules": {
     "@typescript-eslint/no-explicit-any": "warn",
     "@typescript-eslint/explicit-function-return-type": "warn",
-    "@typescript-eslint/no-unused-vars": "warn",
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      { "argsIgnorePattern": "^_" }
+    ],
     "@typescript-eslint/no-non-null-assertion": "error",
     "eqeqeq": "error",
     "no-console": "warn",
-    "no-unused-vars": "warn",
     "no-constant-condition": "error",
     "curly": "error",
     "no-eval": "error",

@@ -1,6 +1,6 @@
 import { prismaClient as prisma } from '@/common/db/prisma'
 import { CreateUserRequest } from '@/domains/users/endpoints/user-create/user-create.controller'
-import { AppError } from '@/common/errors/AppError'
+import { AppError } from '@/common/errors/appError'
 import { User } from '@prisma/client'
 
 export const createUser = async (data: CreateUserRequest): Promise<User> => {

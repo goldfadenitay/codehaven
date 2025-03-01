@@ -1,5 +1,5 @@
 export interface HttpRequest {
-  body: any
+  body: unknown
   query: Record<string, string>
   params: Record<string, string>
   headers: Record<string, string>
@@ -7,7 +7,7 @@ export interface HttpRequest {
 
 export interface HttpResponse {
   statusCode: number
-  body: any
+  body: unknown
   headers?: Record<string, string>
 }
 

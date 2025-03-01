@@ -1,7 +1,14 @@
 import { Request, Response, NextFunction } from 'express'
-import { HttpRequest } from '@/common/utils/http'
-import { Controller } from '@/common/utils/controller'
-import { AppError } from '@/common/errors/AppError'
+import { Controller, HttpRequest } from '@/common/types/http'
+import { AppError } from '@/common/errors/appError'
+import { isPrismaConnected, prismaClient } from '@/common/db/prisma'
+import { logger } from '@/common/utils/logger'
+
+const disconnectPrisma = async (): Promise<void> => {
+  if (isPrismaConnected()) {
+    await prismaClient.$disconnect()
+  }
+}
 
 export const adaptExpressRoute =
   (controller: Controller) =>
@@ -21,7 +28,7 @@ export const adaptExpressRoute =
             res.setHeader(key, value)
           })
         }
-
+        await disconnectPrisma()
         res.status(httpResponse.statusCode).json(httpResponse.body)
       } catch (error) {
         // Convert unknown errors to AppError
@@ -30,6 +37,12 @@ export const adaptExpressRoute =
             AppError.internal('Internal Server Error', 'INTERNAL_ERROR', error),
           )
           return
+        }
+        //
+        try {
+          await disconnectPrisma()
+        } catch (error) {
+          logger.error('Error disconnecting from Prisma', error)
         }
         next(error)
         return

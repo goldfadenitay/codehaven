@@ -42,14 +42,6 @@ app.get('/health', (_req, res) => {
 // API Routes - versioned
 app.use('/api/v1', v1Routes)
 
-// Redirect base API path to latest version
-app.use('/api', (req, res) => {
-  // Get the current path without /api prefix
-  const path = req.originalUrl.replace(/^\/api/, '')
-  // Redirect to the latest version
-  res.redirect(301, `/api/v1${path}`)
-})
-
 // Error handling middleware (must be after routes)
 app.use(errorHandler as unknown as RequestHandler)
 
