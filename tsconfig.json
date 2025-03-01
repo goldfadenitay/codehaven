@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "typeRoots": ["./node_modules/@types", "src/types"],
+    "typeRoots": ["./node_modules/@types", "./src/types"],
     "lib": ["es2018", "dom"], // Specify a list of libraries the project will use
     "target": "ESNext", // Set the JavaScript version for output files
     "module": "commonjs", // Set the module system (Node.js uses CommonJS)
@@ -15,11 +15,7 @@
     "removeComments": true,
 
     "paths": {
-      "@common/*": ["./common/*"],
-      "@domains/*": ["./domains/*"],
-      "@middleware/*": ["./middleware/*"],
-      "@config/*": ["./config/*"],
-      "@types/*": ["./types/*"]
+      "@/*": ["./*"]
     },
 
     "strictNullChecks": true, // Enable strict null checks
@@ -35,11 +31,13 @@
     "noUnusedLocals": true, // Report errors on unused locals
     "noUnusedParameters": true, // Report errors on unused parameters
     "noImplicitReturns": true, // Report error when not all code paths in function return a value
-    "noFallthroughCasesInSwitch": true // Report errors for fallthrough cases in switch statement
+    "noFallthroughCasesInSwitch": true, // Report errors for fallthrough cases in switch statement
+
+    "types": ["node", "express"]
   },
   "include": [
     "src/**/*", // Include all files in the src directory
-    "src/types/express.d.ts"
+    "src/types/**/*.d.ts"
   ],
   "exclude": [
     "node_modules" // Exclude the node_modules directory

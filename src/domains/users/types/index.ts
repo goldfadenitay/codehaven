@@ -1,6 +1,8 @@
-import { type UserRole } from '@prisma/client'
+import { UserRole } from '@prisma/client'
 
-// User DTO types
+/**
+ * Data Transfer Object (DTO) for User
+ */
 export interface UserDto {
   id: string
   email: string
@@ -12,7 +14,9 @@ export interface UserDto {
   updatedAt: Date
 }
 
-// Create user input type
+/**
+ * Input for creating a new user
+ */
 export interface CreateUserInput {
   email: string
   password: string
@@ -21,19 +25,13 @@ export interface CreateUserInput {
   role: UserRole
 }
 
-// Update user input type
-export interface UpdateUserInput {
-  firstName?: string
-  lastName?: string
-  role?: UserRole
-  isActive?: boolean
-}
-
-// Filter user query params
+/**
+ * Filters for querying users
+ */
 export interface UserFilters {
+  search?: string
   role?: UserRole
   isActive?: boolean
-  search?: string
   page?: number
   pageSize?: number
   sortBy?: string

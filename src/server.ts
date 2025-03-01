@@ -1,30 +1,30 @@
 import { createApp } from './app'
-import { logger } from '@common/utils/logger'
+import { logger } from '@/common/utils/logger'
 import config from 'config'
 import {
   connectPrisma,
   disconnectPrisma,
   isPrismaConnected,
-} from '@common/db/prisma'
-import { momentUTC } from '@common/utils/momentUTC'
+} from '@/common/db/prisma'
+import { momentUTC } from '@/common/utils/momentUTC'
+
+// Get port from configuration
+const port = config.get<number>('server.port')
+
+// Create Express application
+const app = createApp()
 
 // Start the server
 const startServer = async (): Promise<void> => {
   try {
-    const startTime = momentUTC.now()
-
     // Connect to the database
     await connectPrisma()
 
-    // Create the Express app
-    const app = createApp()
-    const port = config.get<number>('server.port') ?? 3000
-
-    // Start the server
+    // Start listening for requests
     app.listen(port, () => {
-      const bootTime = momentUTC.diff(startTime, 'milliseconds')
-
-      logger.info(`Server started on port ${port} in ${bootTime}ms`)
+      logger.info(
+        `Server running on port ${port} in ${process.env.NODE_ENV} mode`,
+      )
       logger.info(`Environment: ${process.env.NODE_ENV ?? 'development'}`)
       logger.info(
         `Documentation available at http://localhost:${port}/api/v1/docs`,
@@ -32,9 +32,10 @@ const startServer = async (): Promise<void> => {
     })
 
     // Handle unhandled promise rejections
-    process.on('unhandledRejection', (reason, promise) => {
-      logger.error('Unhandled Promise Rejection:', reason)
-      // Don't exit the process, just log the error
+    process.on('unhandledRejection', (reason: Error) => {
+      logger.error('Unhandled Rejection:', reason)
+      // Close server & exit process
+      process.exit(1)
     })
 
     // Handle uncaught exceptions

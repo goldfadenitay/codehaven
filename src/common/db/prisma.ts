@@ -1,49 +1,88 @@
-import { type Prisma, PrismaClient } from '@prisma/client'
-import { logger } from '@common/utils/logger'
+import { Prisma, PrismaClient } from '@prisma/client'
+import { logger } from '@/common/utils/logger'
+
+// Create a Prisma Client extension for logging
+const withLogging = Prisma.defineExtension({
+  name: 'logging',
+  query: {
+    $allModels: {
+      $allOperations: async ({ operation, model, args, query }) => {
+        const start = performance.now()
+
+        logger.debug(`Query started: ${model}.${operation}`, {
+          model,
+          operation,
+          args,
+        })
+
+        try {
+          const result = await query(args)
+          const end = performance.now()
+          const duration = end - start
+
+          logger.debug(
+            `Query completed: ${model}.${operation} in ${duration.toFixed(2)}ms`,
+            {
+              model,
+              operation,
+              duration,
+            },
+          )
+
+          return result
+        } catch (error) {
+          const end = performance.now()
+          const duration = end - start
+
+          logger.error(
+            `Query failed: ${model}.${operation} in ${duration.toFixed(2)}ms`,
+            {
+              model,
+              operation,
+              duration,
+              error,
+            },
+          )
+
+          throw error
+        }
+      },
+    },
+  },
+})
+
+// Define a type for the extended client
+// type ExtendedPrismaClient = ReturnType<typeof extendPrismaClient>
+
+// Function to create and extend the Prisma client
+function extendPrismaClient(): PrismaClient {
+  const client = new PrismaClient({
+    log: [
+      { level: 'query', emit: 'stdout' },
+      { level: 'error', emit: 'stdout' },
+      { level: 'info', emit: 'stdout' },
+      { level: 'warn', emit: 'stdout' },
+    ],
+  })
+
+  client.$extends(withLogging)
+
+  return client
+}
 
 // Singleton class for Prisma client
 class PrismaClientSingleton {
   private static instance: PrismaClientSingleton
   private readonly prismaClient: PrismaClient
+  private readonly baseClient: PrismaClient
   private isConnected: boolean = false
 
   private constructor() {
-    this.prismaClient = new PrismaClient({
-      log: [
-        {
-          emit: 'event',
-          level: 'query',
-        },
-        {
-          emit: 'event',
-          level: 'error',
-        },
-        {
-          emit: 'event',
-          level: 'info',
-        },
-        {
-          emit: 'event',
-          level: 'warn',
-        },
-      ],
-    })
+    // Create the base client
+    this.baseClient = new PrismaClient()
 
-    this.prismaClient.$on('query', (e: Prisma.QueryEvent) => {
-      logger.debug(`Query: ${e.query}`)
-    })
-
-    this.prismaClient.$on('error', (e: Prisma.LogEvent) => {
-      logger.error(`Prisma Error: ${e.message}`, { target: e.target })
-    })
-
-    this.prismaClient.$on('info', (e: Prisma.LogEvent) => {
-      logger.info(`Prisma Info: ${e.message}`)
-    })
-
-    this.prismaClient.$on('warn', (e: Prisma.LogEvent) => {
-      logger.warn(`Prisma Warning: ${e.message}`)
-    })
+    // Create the extended client
+    this.prismaClient = extendPrismaClient()
   }
 
   public static getInstance(): PrismaClientSingleton {
@@ -60,7 +99,8 @@ class PrismaClientSingleton {
   public async connect(): Promise<void> {
     if (!this.isConnected) {
       try {
-        await this.prismaClient.$connect()
+        // Use the base client for connection
+        await this.baseClient.$connect()
         this.isConnected = true
         logger.info('Successfully connected to the database')
       } catch (error) {
@@ -73,7 +113,8 @@ class PrismaClientSingleton {
   public async disconnect(): Promise<void> {
     if (this.isConnected) {
       try {
-        await this.prismaClient.$disconnect()
+        // Use the base client for disconnection
+        await this.baseClient.$disconnect()
         this.isConnected = false
         logger.info('Successfully disconnected from the database')
       } catch (error) {

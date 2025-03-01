@@ -1,5 +1,5 @@
 import { afterAll, afterEach, beforeAll, vi } from 'vitest'
-import { prismaClient } from '@common/db/prisma.js'
+import { prismaClient } from '@/common/db/prisma'
 
 // Mock logger to reduce test noise
 vi.mock('@common/utils/logger', () => ({

@@ -1,119 +1,69 @@
 import { Request, Response, NextFunction } from 'express'
 import { v4 as uuidv4 } from 'uuid'
-import { logger } from '@common/utils/logger.js'
-import { getUserAgent } from '@common/utils/request.js'
-import { momentUTC } from '@common/utils/momentUTC.js'
-
-// Interface for request metadata
-interface RequestMetadata {
-  ip: string
-  userAgent?: string
-  method: string
-  path: string
-  query: Record<string, any>
-  headers: Record<string, any>
-  protocol: string
-  host?: string
-  referrer?: string
-}
+import { logger } from '@/common/utils/logger'
+import { getUserAgent, getClientIp } from '@/common/utils/request'
+import { momentUTC } from '@/common/utils/momentUTC'
+import { RequestMetadata } from '@/types/express'
 
 /**
- * Generate a unique trace ID for the request
- * If the X-Trace-ID header exists, use that instead
- */
-export const generateTraceId = (req: Request): string => {
-  return (req.headers['x-trace-id'] as string) ?? uuidv4()
-}
-
-/**
- * Collect metadata about the request
- */
-export const collectRequestMetadata = (req: Request): RequestMetadata => {
-  const { headers, method, path, query, protocol } = req
-
-  const userAgent = getUserAgent(req)
-
-  const metadata: RequestMetadata = {
-    ip: req.ip ?? req.socket.remoteAddress ?? '',
-    userAgent,
-    method,
-    path,
-    query,
-    headers: { ...headers },
-    protocol,
-    host: typeof req.headers.host === 'string' ? req.headers.host : undefined,
-    referrer:
-      typeof req.headers.referer === 'string'
-        ? req.headers.referer
-        : typeof req.headers.referrer === 'string'
-          ? req.headers.referrer
-          : undefined,
-  }
-
-  // Remove sensitive headers
-  if (typeof metadata.headers.authorization === 'string') {
-    metadata.headers.authorization = '[REDACTED]'
-  }
-
-  if (typeof metadata.headers.cookie === 'string') {
-    metadata.headers.cookie = '[REDACTED]'
-  }
-
-  return metadata
-}
-
-/**
- * Middleware to add a trace ID to each request
- * Also logs request start and end with performance metrics
+ * Middleware to add trace ID and request metadata to each request
  */
 export const traceMiddleware = (
   req: Request,
   res: Response,
   next: NextFunction,
 ): void => {
-  // Add trace ID
-  const traceId = generateTraceId(req)
-  req.traceId = traceId
+  // Generate a unique trace ID for this request
+  const traceId = (req.headers['x-trace-id'] as string) || uuidv4()
 
-  // Add start time for performance measurement
-  req.startTime = momentUTC.now().toDate()
-
-  // Collect request metadata
-  req.requestMetadata = collectRequestMetadata(req)
+  // Set trace ID in request object
+  ;(req as any).traceId = traceId
 
   // Set trace ID in response headers
   res.setHeader('X-Trace-ID', traceId)
 
+  // Set trace ID in logger context
+  logger.setTraceId(traceId)
+
+  // Record request start time
+  ;(req as any).startTime = momentUTC.now().toDate()
+
+  // Add request metadata
+  const metadata: RequestMetadata = {
+    method: req.method,
+    path: req.path,
+    ip: getClientIp(req),
+    userAgent: getUserAgent(req),
+    startTimestamp: momentUTC.now().toDate(),
+    query: req.query,
+    headers: req.headers,
+    protocol: req.protocol,
+    host: req.get('host'),
+    referrer: req.get('referrer'),
+  }
+
+  ;(req as any).requestMetadata = metadata
+
   // Log request start
   logger.info({
     message: `Request started: ${req.method} ${req.path}`,
-    traceId,
-    requestMetadata: req.requestMetadata,
-    timestamp: req.startTime.toISOString(),
+    method: req.method,
+    path: req.path,
+    query: req.query,
   })
 
-  // Capture response data
-  const originalSend = res.send
-  res.send = function (body?: any): Response {
-    res.locals.body = body
-    return originalSend.call(this, body)
-  }
-
-  // Add listener for response finish
+  // Log request completion and duration on response finish
   res.on('finish', () => {
-    const endTime = momentUTC.now()
-    const duration = endTime.diff(req.startTime, 'milliseconds')
+    const duration = momentUTC.now().diff((req as any).startTime, 'ms')
+    const statusCode = res.statusCode
 
-    // Log request end with performance metrics
     logger.info({
-      message: `Request completed: ${req.method} ${req.path}`,
-      traceId,
-      statusCode: res.statusCode,
+      message: `Request completed: ${req.method} ${req.path} ${statusCode}`,
+      method: req.method,
+      path: req.path,
+      statusCode,
       duration,
-      startTime: req.startTime?.toISOString() ?? 'unknown',
-      endTime: endTime.toISOString(),
-      bytesSent: res.getHeader('content-length') ?? 0,
-      contentType: res.getHeader('content-type') ?? 'unknown',
+      durationFormatted: `${duration}ms`,
     })
   })
 

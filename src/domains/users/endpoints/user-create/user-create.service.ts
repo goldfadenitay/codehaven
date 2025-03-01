@@ -1,9 +1,9 @@
-import { type CreateUserInput, type UserDto } from '@domains/users/types'
-import { ConflictError } from '@common/errors/ErrorTypes'
-import { logger } from '@common/utils/logger'
-import { prismaClient } from '@common/db/prisma'
+import { type CreateUserInput, type UserDto } from '@/domains/users/types'
+import { ConflictError } from '@/common/errors/ErrorTypes'
+import { logger } from '@/common/utils/logger'
+import { prismaClient } from '@/common/db/prisma'
 import bcrypt from 'bcrypt'
-import { isDefined } from '@common/utils/isDefined'
+import { isDefined } from '@/common/utils/isDefined'
 
 /**
  * Service function for user creation

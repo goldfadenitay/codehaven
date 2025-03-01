@@ -1,14 +1,14 @@
 import { type Request, type Response, type NextFunction } from 'express'
-import { AppError } from '@common/errors/AppError'
+import { AppError } from '@/common/errors/AppError'
 import { StatusCodes } from 'http-status-codes'
 import {
   PrismaClientKnownRequestError,
   PrismaClientValidationError,
 } from '@prisma/client/runtime/library'
-import { logger } from '@common/utils/logger'
+import { logger } from '@/common/utils/logger'
 import { ZodError } from 'zod'
 import { match } from 'ts-pattern'
-import { momentUTC } from '@common/utils/momentUTC'
+import { momentUTC } from '@/common/utils/momentUTC'
 
 interface ErrorResponse {
   success: false

@@ -1,7 +1,7 @@
-import { type UserDto } from '@domains/users/types'
-import { NotFoundError } from '@common/errors/ErrorTypes'
-import { prismaClient } from '@common/db/prisma'
-import { isDefined } from '@common/utils/isDefined'
+import { type UserDto } from '@/domains/users/types'
+import { NotFoundError } from '@/common/errors/ErrorTypes'
+import { prismaClient } from '@/common/db/prisma'
+import { isDefined } from '@/common/utils/isDefined'
 
 /**
  * Service function for finding a user by ID

@@ -9,7 +9,7 @@ export default {
   database: {
     url:
       process.env.DATABASE_URL ||
-      'postgresql://postgres:postgres@localhost:5432/codehaven?schema=public',
+      'postgresql://postgres:postgres@127.0.0.1/codehaven?statusColor=686B6F&env=local&name=CodeHaven&tLSMode=0&usePrivateKey=false&safeModeLevel=0&advancedSafeModeLevel=0&driverVersion=0&lazyload=true',
   },
 
   // Logger configuration

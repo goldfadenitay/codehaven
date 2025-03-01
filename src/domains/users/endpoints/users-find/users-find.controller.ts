@@ -1,9 +1,8 @@
 import { type Request, type Response } from 'express'
-import { asyncHandler } from '@common/errors/ErrorHandler'
-import { sendPaginatedSuccess } from '@common/utils/response'
+import { asyncHandler } from '@/common/errors/ErrorHandler'
+import { sendPaginatedSuccess } from '@/common/utils/response'
 import { usersFindService } from './users-find.service'
-import { type UserFilters } from '@domains/users/types'
-import { userFiltersSchema } from '@domains/users/validators/user.validator'
+import { type UserFilters } from '@/domains/users/types'
 
 /**
  * Controller for finding users with filters
@@ -11,8 +10,7 @@ import { userFiltersSchema } from '@domains/users/validators/user.validator'
 export const usersFindController = asyncHandler(
   async (req: Request, res: Response) => {
     // Validate and parse query parameters
-    const filters = userFiltersSchema.parse(req.query) as UserFilters
-
+    const filters = req.query as UserFilters
     // Call service
     const { users, total } = await usersFindService(filters)
 

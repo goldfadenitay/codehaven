@@ -5,7 +5,7 @@ import {
   prismaClient,
   connectPrisma,
   disconnectPrisma,
-} from '@common/db/prisma'
+} from '@/common/db/prisma'
 import { UserRole } from '@prisma/client'
 
 describe('User Create Integration Test', () => {

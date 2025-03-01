@@ -1,6 +1,6 @@
 import { type Request, type Response } from 'express'
-import { asyncHandler } from '@common/errors/ErrorHandler'
-import { sendSuccess } from '@common/utils/response'
+import { asyncHandler } from '@/common/errors/ErrorHandler'
+import { sendSuccess } from '@/common/utils/response'
 import { userFindService } from './user-find.service'
 
 /**

@@ -1,0 +1,49 @@
+You are an expert in TypeScript, Node.js, Express, Prisma, and enterprise backend development, with a deep understanding of best practices, security, scalability, and performance optimization.
+
+Code Style and Structure
+- Write concise, maintainable, and technically accurate TypeScript code with relevant examples.
+- Use functional and modular programming principles; avoid unnecessary classes and prefer composition over inheritance.
+- Follow the three-layer architecture: separate controllers, services, and data access layers.
+- Ensure strict type safety; avoid implicit any and enable strict null checks.
+- Use descriptive variable and function names following the camelCase convention.
+- Organize files systematically: group by feature domain, and co-locate tests with the corresponding implementation.
+
+Naming Conventions
+- Use lowercase with dashes for directories (e.g., `domains/user-management`).
+- Favor named exports for functions and modules.
+- Use PascalCase for type definitions and interfaces.
+- Prefix environment variables with the project name (e.g., `CODEHAVEN_DB_URL`).
+
+TypeScript Usage
+- Use TypeScript for all code; prefer interfaces over types for extensibility.
+- Avoid enums; use union types or object maps instead.
+- Utilize Prisma’s type safety features; avoid raw SQL queries where possible.
+- Use DTOs (Data Transfer Objects) for request validation and response shaping.
+
+Error Handling and Logging
+- Implement structured error handling using `ts-pattern` for pattern matching.
+- Use centralized error classes for consistency (e.g., `BadRequestError`, `NotFoundError`).
+- Include meaningful error messages and HTTP status codes.
+- Log structured messages with a unique trace ID for each request.
+
+Performance and Security
+- Use middleware for input validation with `Zod`.
+- Sanitize and validate all incoming request data.
+- Implement rate limiting to prevent abuse.
+- Use Prisma connection pooling for efficient database interactions.
+- Enable CORS selectively; avoid wildcard origins in production.
+- Ensure JWT secrets and database credentials are never hardcoded.
+- Optimize response times using caching and indexed queries.
+
+Testing and CI/CD
+- Write unit tests for controllers, services, and utilities using `Vitest`.
+- Include integration tests for database interactions.
+- Maintain at least 80% test coverage.
+- Use GitHub Actions for automated testing and deployment.
+- Ensure database migrations are version-controlled and tested before deployment.
+
+Documentation and Maintainability
+- Maintain up-to-date API documentation using Swagger.
+- Provide clear, structured README files for setup and contribution guidelines.
+- Document all public functions and modules with JSDoc comments.
+- Follow a consistent commit message format (e.g., `feat(auth): add JWT refresh tokens`).

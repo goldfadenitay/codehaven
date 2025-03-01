@@ -3,17 +3,17 @@ import {
   validateBody,
   validateParams,
   validateQuery,
-} from '@middleware/validationMiddleware'
+} from '@/middleware/validationMiddleware'
 import {
   createUserSchema,
   userParamsSchema,
   userFiltersSchema,
-} from '@domains/users/validators/user.validator'
+} from '@/domains/users/validators/user.validator'
 
 // Import controllers from endpoints
-import { userCreateController } from '@domains/users/endpoints/user-create/index'
-import { userFindController } from '@domains/users/endpoints/user-find/index'
-import { usersFindController } from '@domains/users/endpoints/users-find/index'
+import { userCreateController } from '@/domains/users/endpoints/user-create/index'
+import { userFindController } from '@/domains/users/endpoints/user-find/index'
+import { usersFindController } from '@/domains/users/endpoints/users-find/index'
 // Import other controllers as they are created
 
 // Initialize the router

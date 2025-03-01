@@ -4,11 +4,11 @@ import helmet from 'helmet'
 import compression from 'compression'
 import morgan from 'morgan'
 import config from 'config'
-import { errorHandler } from '@common/errors/ErrorHandler'
-import { logger } from '@common/utils/logger'
-import { traceMiddleware } from '@middleware/traceMiddleware'
-import { momentUTC } from '@common/utils/momentUTC'
-import v1Routes from './routes/v1/index'
+import { errorHandler } from '@/common/errors/ErrorHandler'
+import { logger } from '@/common/utils/logger'
+import { traceMiddleware } from '@/middleware/traceMiddleware'
+import { momentUTC } from '@/common/utils/momentUTC'
+import v1Routes from '@/routes/v1/index'
 
 /**
  * Express application setup

@@ -1,13 +1,17 @@
 import { Router } from 'express'
-import userRouter from '@domains/users/routes'
+import userRouter from '@/domains/users/routes'
 
-const router = Router()
+const v1Router = Router()
 
-// Register domain routers
-router.use('/users', userRouter)
+// Mount domain-specific routes
+v1Router.use('/users', userRouter)
+
+// Add more domain routes here as needed
+// v1Router.use('/products', productRouter)
+// v1Router.use('/orders', orderRouter)
 
 // Root route for API documentation
-router.get('/', (req, res) => {
+v1Router.get('/', (_, res) => {
   res.status(200).json({
     message: 'CodeHaven API v1',
     docs: '/api/v1/docs',
@@ -22,4 +26,4 @@ router.get('/', (req, res) => {
   })
 })
 
-export default router
+export default v1Router

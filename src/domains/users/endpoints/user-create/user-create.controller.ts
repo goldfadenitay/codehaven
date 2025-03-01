@@ -1,7 +1,7 @@
 import { type Request, type Response } from 'express'
-import { asyncHandler } from '@common/errors/ErrorHandler'
-import { sendCreated } from '@common/utils/response'
-import { type CreateUserInput } from '@domains/users/types'
+import { asyncHandler } from '@/common/errors/ErrorHandler'
+import { sendCreated } from '@/common/utils/response'
+import { type CreateUserInput } from '@/domains/users/types'
 import { userCreateService } from './user-create.service'
 
 /**
@@ -9,6 +9,7 @@ import { userCreateService } from './user-create.service'
  */
 export const userCreateController = asyncHandler(
   async (req: Request, res: Response) => {
+    console.log('req.body', req.body)
     // The request body is already validated by the validation middleware
     const validatedData = req.body as CreateUserInput
 

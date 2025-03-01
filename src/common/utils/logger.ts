@@ -1,8 +1,8 @@
 import pino from 'pino'
 import config from 'config'
-import { momentUTC } from '@common/utils/momentUTC'
+import { momentUTC } from '@/common/utils/momentUTC'
 import { AsyncLocalStorage } from 'async_hooks'
-import { isDefined } from '@common/utils/isDefined'
+import { isDefined } from '@/common/utils/isDefined'
 
 // Trace context type
 interface TraceContext {
