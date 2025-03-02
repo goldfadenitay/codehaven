@@ -1,8 +1,8 @@
-import { afterAll, afterEach, beforeAll, vi } from 'vitest'
-import { prismaClient } from '../../src/common/db/prisma'
+import { afterEach, beforeAll, vi } from 'vitest'
+import { prisma } from '../../src/common/db/prisma'
 
 // Mock logger to reduce test noise
-vi.mock('@common/utils/logger', () => ({
+vi.mock('../../src/common/utils/logger', () => ({
   logger: {
     trace: vi.fn(),
     debug: vi.fn(),
@@ -15,13 +15,9 @@ vi.mock('@common/utils/logger', () => ({
   },
 }))
 
-// Setup before all tests
+// Global setup before tests
 beforeAll(async () => {
-  // Connect to the test database
-  await prismaClient.$connect()
-
-  // Set test environment
-  process.env.NODE_ENV = 'test'
+  // Connect to the database already happens via prisma client initialization
 })
 
 // Cleanup after each test
@@ -29,27 +25,16 @@ afterEach(async () => {
   // Reset mocks
   vi.clearAllMocks()
 
-  // Clean up database
-  // Only delete data, don't recreate the database
-  const tables = await prismaClient.$queryRaw<
-    Array<{ tablename: string }>
-  >`SELECT tablename FROM pg_tables WHERE schemaname='public'`
+  // Clean up database - using a simpler approach
+  // This avoids the information_schema query which may be causing issues
+  const modelNames = Object.keys(prisma).filter(
+    (key) => !key.startsWith('_') && !key.startsWith('$'),
+  )
 
-  // Disable foreign key checks temporarily
-  await prismaClient.$executeRaw`SET session_replication_role = 'replica';`
-
-  for (const { tablename } of tables) {
-    if (tablename !== '_prisma_migrations') {
-      await prismaClient.$executeRaw`TRUNCATE TABLE "public"."${tablename}" CASCADE;`
+  // Delete data from all tables
+  for (const modelName of modelNames) {
+    if (typeof prisma[modelName].deleteMany === 'function') {
+      await prisma[modelName].deleteMany({})
     }
   }
-
-  // Re-enable foreign key checks
-  await prismaClient.$executeRaw`SET session_replication_role = 'origin';`
-})
-
-// Cleanup after all tests
-afterAll(async () => {
-  // Disconnect from the database
-  await prismaClient.$disconnect()
 })

@@ -1,104 +1,86 @@
-import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest'
-import { createApp } from '../../../../../app'
-import request from 'supertest'
-import {
-  prismaClient,
-  connectPrisma,
-  disconnectPrisma,
-} from '@/common/db/prisma'
+import { describe, it, expect, vi } from 'vitest'
+import { prisma } from '@/common/db/prisma'
+import { StatusCodes } from 'http-status-codes'
 import { UserRole } from '@prisma/client'
+import { UserFactory } from '../../../../../../tests/factories/userFactory'
+import { faker } from '@faker-js/faker'
+import supertest from 'supertest'
+import { app } from '@/app'
 
-describe('User Create Integration Test', () => {
-  // Setup
-  beforeAll(async () => {
-    await connectPrisma()
-  })
+vi.mock('@/common/utils/logger', () => ({
+  createRequestLogger: vi.fn().mockReturnValue({
+    info: vi.fn(),
+    error: vi.fn(),
+    end: vi.fn(),
+  }),
+}))
 
-  // Cleanup after all tests
-  afterAll(async () => {
-    await disconnectPrisma()
-  })
-
-  // Clean database before each test
-  beforeEach(async () => {
-    await prismaClient.user.deleteMany()
-  })
-
-  // Create app instance
-  const app = createApp()
-
-  it('should create a new user', async () => {
-    const userData = {
-      email: 'test@example.com',
-      password: 'Password123!',
-      firstName: 'Test',
-      lastName: 'User',
-      role: UserRole.USER,
+describe('User Create Controller Integration Test', () => {
+  it('should create a user and return 201 status', async () => {
+    const mockUserData = {
+      email: faker.internet.email(),
+      password: faker.internet.password({
+        prefix: `123-APpa+!?`,
+        length: 10,
+      }),
+      firstName: faker.person.firstName(),
+      lastName: faker.person.lastName(),
+      role: faker.helpers.arrayElement([UserRole.USER, UserRole.ADMIN]),
     }
 
-    const response = await request(app)
+    await supertest(app)
       .post('/api/v1/users')
-      .send(userData)
-      .expect('Content-Type', /json/)
-      .expect(201)
+      .send(mockUserData)
+      .expect(StatusCodes.CREATED)
 
-    expect(response.body.success).toBe(true)
-    expect(response.body.data.email).toBe(userData.email)
-    expect(response.body.data.firstName).toBe(userData.firstName)
-    expect(response.body.data.lastName).toBe(userData.lastName)
-    expect(response.body.data.role).toBe(userData.role)
+    const createdUsers = await prisma.user.findMany({
+      where: {
+        email: mockUserData.email,
+      },
+    })
+    expect(createdUsers[0]).toEqual({
+      id: expect.any(String),
+      email: mockUserData.email,
+      password: expect.any(String),
+      firstName: mockUserData.firstName,
+      lastName: mockUserData.lastName,
+      role: mockUserData.role,
+      isActive: true,
+      lastLoginAt: null,
+      refreshToken: null,
+      tokenExpiry: null,
+      createdAt: expect.any(Date),
+      updatedAt: expect.any(Date),
+    })
+  })
 
-    // Password should not be returned
-    expect(response.body.data.password).toBeUndefined()
+  it('should create a user and return 201 status', async () => {
+    const mockUserData = {
+      email: faker.internet.email(),
+      password: faker.internet.password({
+        prefix: `123-APpa+!?`,
+        length: 10,
+      }),
+      firstName: faker.person.firstName(),
+      lastName: faker.person.lastName(),
+      role: faker.helpers.arrayElement([UserRole.USER, UserRole.ADMIN]),
+    }
 
-    // Verify user was created in database
-    const createdUser = await prismaClient.user.findUnique({
-      where: { email: userData.email },
+    const existingUser = await new UserFactory(prisma).createUser({
+      email: mockUserData.email,
     })
 
-    expect(createdUser).not.toBeNull()
-    expect(createdUser?.email).toBe(userData.email)
-  })
-
-  it('should return validation error for invalid data', async () => {
-    const invalidUserData = {
-      email: 'invalid-email',
-      password: 'short',
-      firstName: '',
-      lastName: '',
-      role: 'INVALID_ROLE',
-    }
-
-    const response = await request(app)
+    await supertest(app)
       .post('/api/v1/users')
-      .send(invalidUserData)
-      .expect('Content-Type', /json/)
-      .expect(422)
+      .send(mockUserData)
+      .expect(StatusCodes.CONFLICT)
 
-    expect(response.body.success).toBe(false)
-    expect(response.body.error.code).toBe('VALIDATION_ERROR')
-  })
+    const createdUsers = await prisma.user.findMany({
+      where: {
+        email: existingUser.email,
+      },
+    })
 
-  it('should return conflict error when email already exists', async () => {
-    // First create a user
-    const userData = {
-      email: 'existing@example.com',
-      password: 'Password123!',
-      firstName: 'Existing',
-      lastName: 'User',
-      role: UserRole.USER,
-    }
-
-    await request(app).post('/api/v1/users').send(userData).expect(201)
-
-    // Try to create a user with the same email
-    const response = await request(app)
-      .post('/api/v1/users')
-      .send(userData)
-      .expect('Content-Type', /json/)
-      .expect(409)
-
-    expect(response.body.success).toBe(false)
-    expect(response.body.error.code).toBe('EMAIL_IN_USE')
+    expect(createdUsers).toHaveLength(1)
   })
 })

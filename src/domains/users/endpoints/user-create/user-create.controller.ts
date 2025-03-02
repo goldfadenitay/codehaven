@@ -3,7 +3,8 @@ import { validate } from '@/common/utils/validation'
 import { z } from 'zod'
 import { UserRole } from '@prisma/client'
 import { created } from '@/common/utils/response'
-import { createUser } from '@/domains/users/endpoints/user-create/user-create.service'
+import { userCreateService } from '@/domains/users/endpoints/user-create/user-create.service'
+import { userCreateSerializer } from '@/domains/users/endpoints/user-create/user-create.serializer'
 
 const createUserSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -25,10 +26,10 @@ export type CreateUserRequest = z.infer<typeof createUserSchema>
 
 export const userCreateController: Controller = async (req: HttpRequest) => {
   const validatedData = validate(createUserSchema, req.body)
-  const user = await createUser(validatedData)
+  const user = await userCreateService(validatedData)
 
   return created({
     message: 'User created successfully',
-    data: { user },
+    data: { user: userCreateSerializer(user) },
   })
 }

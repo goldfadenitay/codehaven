@@ -1,5 +1,5 @@
 import { User } from '@prisma/client'
-import { prismaClient as prisma } from '@/common/db/prisma'
+import { prisma as prisma } from '@/common/db/prisma'
 import { AppError } from '@/common/errors/appError'
 import { getUserById } from '@/domains/users/endpoints/user-find/user-find.service'
 import { UpdateUserRequest } from '@/domains/users/endpoints/user-update/user-update.controller'

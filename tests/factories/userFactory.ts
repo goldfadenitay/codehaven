@@ -1,13 +1,14 @@
-import { type PrismaClient, type User, UserRole } from '@prisma/client'
-import bcrypt from 'bcrypt'
+import { type User, UserRole } from '@prisma/client'
+import { prisma } from '@/common/db/prisma'
+import { faker } from '@faker-js/faker'
 
 /**
  * Test factory for creating test data
  */
 export class UserFactory {
-  private readonly prisma: PrismaClient
+  private readonly prisma: typeof prisma
 
-  constructor(prisma: PrismaClient) {
+  constructor(prisma: typeof prisma) {
     this.prisma = prisma
   }
 
@@ -15,17 +16,14 @@ export class UserFactory {
    * Create a test user
    */
   public async createUser(overrides: Partial<User> = {}): Promise<User> {
-    const salt = await bcrypt.genSalt(10)
-    const hashedPassword = await bcrypt.hash('Password123!', salt)
-
     return await this.prisma.user.create({
       data: {
-        email: `user-${Date.now()}@example.com`,
-        password: hashedPassword,
-        firstName: 'Test',
-        lastName: 'User',
-        role: UserRole.USER,
-        isActive: true,
+        email: faker.internet.email(),
+        password: faker.internet.password(),
+        firstName: faker.person.firstName(),
+        lastName: faker.person.lastName(),
+        role: faker.helpers.arrayElement([UserRole.USER, UserRole.ADMIN]),
+        isActive: faker.datatype.boolean(),
         ...overrides,
       },
     })
@@ -43,7 +41,7 @@ export class UserFactory {
     for (let i = 0; i < count; i++) {
       const user = await this.createUser({
         ...overrides,
-        email: `user-${Date.now()}-${i}@example.com`,
+        email: faker.internet.email(),
       })
       users.push(user)
     }

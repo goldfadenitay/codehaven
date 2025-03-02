@@ -1,8 +1,8 @@
 import { app } from '@/app'
 import { logger } from '@/common/utils/logger'
 import config from 'config'
-import { disconnectPrisma, isPrismaConnected } from '@/common/db/prisma'
 import { momentUTC } from '@/common/utils/momentUTC'
+import { prisma } from './common/db/prisma'
 
 // Get port from configuration
 const PORT = config.get<number>('server.port') ?? 3000
@@ -24,19 +24,13 @@ process.on('unhandledRejection', (reason: Error) => {
 process.on('uncaughtException', async (error) => {
   logger.error('Uncaught Exception:', error)
 
-  // Check if we have an open Prisma connection and close it
-  if (isPrismaConnected()) {
-    try {
-      await disconnectPrisma()
-      logger.info(
-        'Successfully closed database connection after uncaught exception',
-      )
-    } catch (dbError) {
-      logger.error(
-        'Failed to close database connection after uncaught exception:',
-        dbError,
-      )
-    }
+  try {
+    await prisma.$disconnect()
+  } catch (dbError) {
+    logger.error(
+      'Try to close database connection after uncaught exception:',
+      dbError,
+    )
   }
 
   // Exit the process with error
@@ -49,10 +43,7 @@ const gracefulShutdown = async (signal: string): Promise<void> => {
   logger.info(`${signal} received. Gracefully shutting down...`)
 
   try {
-    // Disconnect from the database
-    if (isPrismaConnected()) {
-      await disconnectPrisma()
-    }
+    await prisma.$disconnect()
 
     const shutdownTime = momentUTC.diff(shutdownStart, 'milliseconds')
     logger.info(`Graceful shutdown completed in ${shutdownTime}ms`)

@@ -1,106 +1,98 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { type NextFunction, type Request, type Response } from 'express'
-import { userCreateController } from '../user-create.controller'
-import * as userCreateServiceModule from '../user-create.service'
+import { userCreateController } from '@/domains/users/endpoints/user-create/user-create.controller'
+import * as userCreateService from '@/domains/users/endpoints/user-create/user-create.service'
 import { ConflictError } from '@/common/errors/errorTypes'
 import { StatusCodes } from 'http-status-codes'
 import { UserRole } from '@prisma/client'
-
-const nextFunction = vi.fn() as unknown as NextFunction
-
+import { HttpRequest } from '@/common/types/http'
+import { prisma } from '@/common/db/prisma'
+import { UserFactory } from '../../../../../../tests/factories/userFactory'
+import { faker } from '@faker-js/faker'
 // Mock the user-create service
-vi.mock('../user-create.service', () => ({
-  userCreateService: vi.fn(),
-}))
 
-// Mock response object
-const mockResponse = (): Partial<Response> => ({
-  status: vi.fn().mockReturnThis(),
-  json: vi.fn().mockReturnThis(),
-})
+const userCreateServiceSpy = vi.spyOn(userCreateService, 'userCreateService')
 
 describe('User Create Controller', () => {
-  // Reset mocks before each test
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.clearAllMocks()
   })
 
   it('should create a user and return 201 status', async () => {
     // Mock request data
     const mockUserData = {
-      email: 'test@example.com',
-      password: 'Password123!',
-      firstName: 'Test',
-      lastName: 'User',
-      role: UserRole.USER,
+      email: faker.internet.email(),
+      password: faker.internet.password({
+        prefix: `123-APpa+!?`,
+        length: 10,
+      }),
+      firstName: faker.person.firstName(),
+      lastName: faker.person.lastName(),
+      role: faker.helpers.arrayElement([UserRole.USER, UserRole.ADMIN]),
     }
 
-    const req = {
+    // Create mock HttpRequest
+    const mockRequest: HttpRequest = {
       body: mockUserData,
-    } as unknown as Request
-
-    const res = mockResponse()
-
-    // Mock service response
-    const mockCreatedUser = {
-      id: '1',
-      email: mockUserData.email,
-      firstName: mockUserData.firstName,
-      lastName: mockUserData.lastName,
-      role: mockUserData.role,
-      isActive: true,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      query: {},
+      params: {},
+      headers: {},
     }
-
-    vi.mocked(userCreateServiceModule.userCreateService).mockResolvedValue(
-      mockCreatedUser,
-    )
-
     // Call controller
-    userCreateController(req, res as unknown as Response, nextFunction)
+    const response = await userCreateController(mockRequest)
 
     // Check service was called with correct data
-    expect(userCreateServiceModule.userCreateService).toHaveBeenCalledWith(
-      mockUserData,
-    )
+    expect(userCreateServiceSpy).toHaveBeenCalledOnce()
 
-    // Check response was sent correctly
-    expect(res.status).toHaveBeenCalledWith(StatusCodes.CREATED)
-    expect(res.json).toHaveBeenCalledWith(
-      expect.objectContaining({
-        success: true,
-        data: mockCreatedUser,
-      }),
-    )
+    // Check response structure
+    expect(response.statusCode).toBe(StatusCodes.CREATED)
+    expect(response.body).toMatchObject({
+      message: 'User created successfully',
+      data: {
+        user: expect.objectContaining({
+          id: expect.any(String),
+          email: mockUserData.email,
+          firstName: mockUserData.firstName,
+          lastName: mockUserData.lastName,
+        }),
+      },
+    })
+    expect(
+      (response.body as unknown as { data: { user: { password: string } } })
+        .data.user.password,
+    ).toBeUndefined()
   })
 
   it('should handle conflict error when email already exists', async () => {
     // Mock request data
     const mockUserData = {
-      email: 'existing@example.com',
-      password: 'Password123!',
-      firstName: 'Existing',
-      lastName: 'User',
-      role: UserRole.USER,
+      email: faker.internet.email(),
+      password: faker.internet.password({
+        prefix: `123-APpa+!?`,
+        length: 10,
+      }),
+      firstName: faker.person.firstName(),
+      lastName: faker.person.lastName(),
+      role: faker.helpers.arrayElement([UserRole.USER, UserRole.ADMIN]),
     }
 
-    const req = {
+    await new UserFactory(prisma).createUser({
+      email: mockUserData.email,
+    })
+
+    // Create mock HttpRequest
+    const mockRequest: HttpRequest = {
       body: mockUserData,
-    } as unknown as Request
+      query: {},
+      params: {},
+      headers: {},
+    }
 
-    const res = mockResponse()
-    const next = vi.fn()
-
-    // Mock service to throw conflict error
-    vi.mocked(userCreateServiceModule.userCreateService).mockRejectedValue(
-      new ConflictError('Email already in use', 'EMAIL_IN_USE'),
+    // Call controller and expect it to throw the error
+    await expect(userCreateController(mockRequest)).rejects.toThrow(
+      new ConflictError(
+        'User with this email already exists',
+        'USER_EMAIL_EXISTS',
+      ),
     )
-
-    // Call controller
-    userCreateController(req, res as unknown as Response, nextFunction)
-
-    // Check error was passed to next middleware
-    expect(next).toHaveBeenCalledWith(expect.any(ConflictError))
   })
 })

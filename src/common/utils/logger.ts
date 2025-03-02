@@ -1,5 +1,6 @@
 import { Request, Response } from 'express'
 import winston from 'winston'
+import { momentUTC } from './momentUTC'
 
 const logger = winston.createLogger({
   level: 'info',
@@ -33,7 +34,7 @@ export type LogContext = {
 
 export const createRequestLogger = (
   req: Request,
-  startTime = Date.now(),
+  startTime = momentUTC.now().utc().toISOString(),
 ): {
   info: (message: string, context?: Partial<LogContext>) => void
   error: (message: string, context?: Partial<LogContext>, error?: Error) => void

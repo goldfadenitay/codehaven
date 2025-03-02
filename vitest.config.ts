@@ -5,7 +5,7 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'node',
-    setupFiles: ['dotenv/config', './src/test/setup.ts'],
+    setupFiles: ['dotenv/config', './tests/utils/setup.ts'],
     include: ['**/*.test.ts', '**/*.spec.ts', '**/*.integration.test.ts'],
     exclude: [
       '**/node_modules/**',
@@ -14,7 +14,7 @@ export default defineConfig({
     ],
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'json', 'html'],
+      reporter: ['text', 'json'],
       exclude: [
         'coverage/**',
         'dist/**',
@@ -28,24 +28,22 @@ export default defineConfig({
       ],
       all: true,
     },
-    reporters: ['default', 'html'],
+    reporters: ['default'],
     outputFile: {
       html: './coverage/html/index.html',
     },
     deps: {
-      inline: [
-        // Dependencies that should be inlined during tests
-      ],
+      optimizer: {
+        ssr: {
+          enabled: true,
+          include: ['winston'],
+        },
+      },
     },
   },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
-      '@common': path.resolve(__dirname, './src/common'),
-      '@domains': path.resolve(__dirname, './src/domains'),
-      '@middleware': path.resolve(__dirname, './src/middleware'),
-      '@config': path.resolve(__dirname, './config'),
-      '@types': path.resolve(__dirname, './src/types'),
     },
   },
 })

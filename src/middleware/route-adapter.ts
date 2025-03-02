@@ -1,13 +1,11 @@
 import { Request, Response, NextFunction } from 'express'
 import { Controller, HttpRequest } from '@/common/types/http'
 import { AppError } from '@/common/errors/appError'
-import { isPrismaConnected, prismaClient } from '@/common/db/prisma'
+import { prisma } from '@/common/db/prisma'
 import { logger } from '@/common/utils/logger'
 
 const disconnectPrisma = async (): Promise<void> => {
-  if (isPrismaConnected()) {
-    await prismaClient.$disconnect()
-  }
+  await prisma.$disconnect()
 }
 
 export const adaptExpressRoute =
@@ -31,6 +29,7 @@ export const adaptExpressRoute =
         await disconnectPrisma()
         res.status(httpResponse.statusCode).json(httpResponse.body)
       } catch (error) {
+        await prisma.$disconnect()
         // Convert unknown errors to AppError
         if (!(error instanceof AppError)) {
           next(

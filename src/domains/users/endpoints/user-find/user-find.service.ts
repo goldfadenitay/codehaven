@@ -1,4 +1,4 @@
-import { prismaClient as prisma } from '@/common/db/prisma'
+import { prisma as prisma } from '@/common/db/prisma'
 import { AppError } from '@/common/errors/appError'
 import { User } from '@prisma/client'
 
